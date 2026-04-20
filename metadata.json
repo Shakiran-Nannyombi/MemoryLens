@@ -1,0 +1,10 @@
+{
+  "name": "MemoryLens",
+  "description": "An assistive web application for dementia patients that uses camera, speech, and location to provide orientation and memory support.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ],
+  "majorCapabilities": []
+}
