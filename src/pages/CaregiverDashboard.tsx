@@ -2,8 +2,11 @@ import React from 'react';
 import { useStore } from '../store/useStore';
 import { useNavigate, Routes, Route, Link } from 'react-router-dom';
 import { Button } from '../components/ui/button';
+import { PrivacyToggle } from '../components/PrivacyToggle';
+import { WalletConnect } from '../components/WalletConnect';
+import PrivacyDashboard from './PrivacyDashboard';
 import { supabase } from '../lib/supabase';
-import { Users, Box, MapPin, Activity, LogOut, ArrowLeft } from 'lucide-react';
+import { Users, Box, MapPin, Activity, LogOut, ArrowLeft, Shield } from 'lucide-react';
 
 export default function CaregiverDashboard() {
   const user = useStore(state => state.user);
@@ -45,8 +48,15 @@ export default function CaregiverDashboard() {
             <Activity className="w-5 h-5 text-indigo-500" />
             <span className="font-medium">Memory Events</span>
           </Link>
+          <Link to="/dashboard/privacy" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700">
+            <Shield className="w-5 h-5 text-purple-500" />
+            <span className="font-medium">Privacy</span>
+          </Link>
         </nav>
-        <div className="p-4 border-t border-gray-200 space-y-2">
+        {/* Privacy toggle + wallet in sidebar */}
+        <div className="p-4 border-t border-gray-200 space-y-3">
+          <PrivacyToggle />
+          <WalletConnect />
           <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/')}>
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to App
           </Button>
@@ -63,6 +73,7 @@ export default function CaregiverDashboard() {
           <Route path="/objects" element={<div className="text-gray-500">Object Manager (WIP)</div>} />
           <Route path="/places" element={<div className="text-gray-500">Places Manager (WIP)</div>} />
           <Route path="/events" element={<div className="text-gray-500">Events Viewer (WIP)</div>} />
+          <Route path="/privacy" element={<PrivacyDashboard />} />
         </Routes>
       </div>
     </div>
@@ -71,14 +82,14 @@ export default function CaregiverDashboard() {
 
 function PeopleManager() {
   const people = useStore(state => state.people);
-  
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Registered People</h1>
         <Button>Add Person</Button>
       </div>
-      
+
       {people.length === 0 ? (
         <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-xl">
           <p className="text-gray-500 mb-4">No people have been registered yet.</p>
@@ -88,18 +99,18 @@ function PeopleManager() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {people.map(person => (
             <div key={person.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
-               {person.image_url ? (
-                 <img src={person.image_url} alt={person.name} className="w-16 h-16 rounded-full object-cover" />
-               ) : (
-                 <div className="w-16 h-16 rounded-full bg-gray-200 flex flex-shrink-0 items-center justify-center text-gray-400">
-                   <Users className="w-8 h-8" />
-                 </div>
-               )}
-               <div>
-                  <h3 className="font-bold text-lg text-gray-900">{person.name}</h3>
-                  <p className="text-sm text-blue-600 font-medium">{person.relationship}</p>
-                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">{person.note}</p>
-               </div>
+              {person.image_url ? (
+                <img src={person.image_url} alt={person.name} className="w-16 h-16 rounded-full object-cover" />
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-gray-200 flex flex-shrink-0 items-center justify-center text-gray-400">
+                  <Users className="w-8 h-8" />
+                </div>
+              )}
+              <div>
+                <h3 className="font-bold text-lg text-gray-900">{person.name}</h3>
+                <p className="text-sm text-blue-600 font-medium">{person.relationship}</p>
+                <p className="text-sm text-gray-500 mt-1 line-clamp-2">{person.note}</p>
+              </div>
             </div>
           ))}
         </div>

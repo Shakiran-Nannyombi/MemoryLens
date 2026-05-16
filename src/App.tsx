@@ -2,11 +2,12 @@ import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-do
 import CameraView from './pages/CameraView';
 import AssistantMode from './pages/AssistantMode';
 import CaregiverDashboard from './pages/CaregiverDashboard';
+import ComparisonDemo from './pages/ComparisonDemo';
 import Login from './pages/Login';
 import { useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { useStore } from './store/useStore';
-import { Camera, HelpCircle, Settings } from 'lucide-react';
+import { Camera, HelpCircle, Settings, BarChart2 } from 'lucide-react';
 
 function BottomNav() {
   const location = useLocation();
@@ -21,6 +22,10 @@ function BottomNav() {
       <Link to="/assistant" className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/assistant' ? 'text-[var(--color-natural-accent)] bg-[var(--color-natural-bg)]' : 'text-gray-500'}`}>
         <HelpCircle className="w-6 h-6 mb-1" />
         <span className="text-xs font-medium">Help</span>
+      </Link>
+      <Link to="/compare" className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/compare' ? 'text-purple-600 bg-purple-50' : 'text-gray-500'}`}>
+        <BarChart2 className="w-6 h-6 mb-1" />
+        <span className="text-xs font-medium">Compare</span>
       </Link>
       <Link to="/login" className="flex flex-col items-center p-2 rounded-lg text-gray-500 hover:bg-[var(--color-natural-bg)] hover:text-[var(--color-natural-accent)]">
         <Settings className="w-6 h-6 mb-1" />
@@ -52,6 +57,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<CameraView />} />
             <Route path="/assistant" element={<AssistantMode />} />
+            <Route path="/compare" element={<ComparisonDemo />} />
             <Route path="/dashboard/*" element={<CaregiverDashboard />} />
             <Route path="/login" element={<Login />} />
           </Routes>
