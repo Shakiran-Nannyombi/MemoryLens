@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ─── Base design tokens ─────────────────────────────────────────── */
+/* ─── Design tokens (light mode only) ───────────────────────────── */
 :root {
   --text: #061723;
   --background: #f2f9fd;
@@ -9,19 +9,7 @@
   --accent: #b9ca21;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #dcedf9;
-    --background: #02090d;
-    --primary: #7bbeea;
-    --secondary: #912818;
-    --accent: #cdde35;
-  }
-}
-
 /* ─── Tailwind 4 theme registration ─────────────────────────────── */
-/* Registers tokens as Tailwind utilities:                           */
-/* text-text, bg-background, bg-primary, text-primary, etc.         */
 @theme inline {
   --color-text: var(--text);
   --color-background: var(--background);
@@ -34,7 +22,7 @@
   --color-border: color-mix(in srgb, var(--text) 15%, transparent);
   --color-muted: color-mix(in srgb, var(--text) 50%, transparent);
 
-  /* Midnight / blockchain purple — stays consistent across modes */
+  /* Midnight / blockchain purple — fixed */
   --color-midnight: #9333ea;
   --color-midnight-light: #f3e8ff;
   --color-midnight-dark: #6b21a8;
@@ -46,11 +34,5 @@ body {
   color: var(--text);
   font-family: 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
-}
-
-/* ─── Smooth theme transitions ───────────────────────────────────── */
-*,
-*::before,
-*::after {
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  color-scheme: light;
 }
