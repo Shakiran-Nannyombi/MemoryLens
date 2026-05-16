@@ -2,27 +2,32 @@ import { BrowserRouter, Routes, Route, Link, useLocation } from 'react-router-do
 import CameraView from './pages/CameraView';
 import AssistantMode from './pages/AssistantMode';
 import CaregiverDashboard from './pages/CaregiverDashboard';
+import ComparisonDemo from './pages/ComparisonDemo';
 import Login from './pages/Login';
 import { useEffect } from 'react';
 import { supabase } from './lib/supabase';
 import { useStore } from './store/useStore';
-import { Camera, HelpCircle, Settings } from 'lucide-react';
+import { Camera, HelpCircle, Settings, BarChart2 } from 'lucide-react';
 
 function BottomNav() {
   const location = useLocation();
   if (location.pathname === '/login' || location.pathname.startsWith('/dashboard')) return null;
 
   return (
-    <nav className="fixed bottom-0 w-full bg-[var(--color-natural-card)] border-t border-gray-200 flex justify-around items-center py-3 z-50 pb-safe">
-      <Link to="/" className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/' ? 'text-[var(--color-natural-accent)] bg-[var(--color-natural-bg)]' : 'text-gray-500'}`}>
+    <nav className="fixed bottom-0 w-full bg-surface border-t border-border flex justify-around items-center py-3 z-50 pb-safe">
+      <Link to="/" className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/' ? 'text-primary bg-background' : 'text-muted'}`}>
         <Camera className="w-6 h-6 mb-1" />
         <span className="text-xs font-medium">Lens</span>
       </Link>
-      <Link to="/assistant" className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/assistant' ? 'text-[var(--color-natural-accent)] bg-[var(--color-natural-bg)]' : 'text-gray-500'}`}>
+      <Link to="/assistant" className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/assistant' ? 'text-primary bg-background' : 'text-muted'}`}>
         <HelpCircle className="w-6 h-6 mb-1" />
         <span className="text-xs font-medium">Help</span>
       </Link>
-      <Link to="/login" className="flex flex-col items-center p-2 rounded-lg text-gray-500 hover:bg-[var(--color-natural-bg)] hover:text-[var(--color-natural-accent)]">
+      <Link to="/compare" className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/compare' ? 'text-midnight bg-midnight-light' : 'text-muted'}`}>
+        <BarChart2 className="w-6 h-6 mb-1" />
+        <span className="text-xs font-medium">Compare</span>
+      </Link>
+      <Link to="/login" className={`flex flex-col items-center p-2 rounded-lg ${location.pathname === '/login' ? 'text-primary bg-background' : 'text-muted'}`}>
         <Settings className="w-6 h-6 mb-1" />
         <span className="text-xs font-medium">Caregiver</span>
       </Link>
@@ -47,11 +52,12 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <div className="flex flex-col h-[100dvh] bg-[var(--color-natural-bg)] text-[var(--color-natural-text)] font-sans">
+      <div className="flex flex-col h-[100dvh] bg-background text-text font-sans">
         <main className="flex-1 overflow-y-auto relative">
           <Routes>
             <Route path="/" element={<CameraView />} />
             <Route path="/assistant" element={<AssistantMode />} />
+            <Route path="/compare" element={<ComparisonDemo />} />
             <Route path="/dashboard/*" element={<CaregiverDashboard />} />
             <Route path="/login" element={<Login />} />
           </Routes>
