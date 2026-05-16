@@ -135,10 +135,10 @@ http://localhost:3000
 ## 👥 Team Development
 
 ### For Hackathon Team Members
-See **[TEAM_ROLES.md](TEAM_ROLES.md)** for detailed task breakdown:
-- 🎨 **Role 1:** Frontend Developer
-- ⚙️ **Role 2:** Smart Contract Developer  
-- 🔌 **Role 3:** Backend/Integration Developer
+See **[docs/TEAM_ROLES.md](docs/TEAM_ROLES.md)** for detailed task breakdown:
+- 🎨 **Role 1:** Frontend Developer → [`frontend/README.md`](frontend/README.md)
+- ⚙️ **Role 2:** Smart Contract Developer → [`backend/README.md`](backend/README.md)
+- 🔌 **Role 3:** Backend/Integration Developer → [`backend/README.md`](backend/README.md)
 
 ### Development Workflow
 ```bash
@@ -159,34 +159,52 @@ git push origin <role>/<feature-name>
 
 ```
 MemoryLens/
-├── src/
-│   ├── components/        # React components
-│   │   └── ui/           # Reusable UI components
-│   ├── pages/            # Page components
+├── src/                        # 🎨 Frontend - React app (Person 1)
+│   ├── components/
+│   │   └── ui/                 # Reusable UI components
+│   ├── pages/
 │   │   ├── CameraView.tsx
 │   │   ├── AssistantMode.tsx
 │   │   ├── CaregiverDashboard.tsx
 │   │   └── Login.tsx
-│   ├── lib/              # Utilities
-│   │   ├── supabase.ts   # Supabase client
-│   │   └── utils.ts      # Helper functions
-│   ├── midnight/         # Midnight integration (NEW)
-│   │   ├── contracts/    # Compact smart contracts
-│   │   ├── lib/          # SDK integration
-│   │   └── types/        # TypeScript types
-│   ├── store/            # State management
-│   │   └── useStore.ts   # Zustand store
-│   ├── types/            # TypeScript types
+│   ├── lib/
+│   │   ├── supabase.ts
+│   │   └── utils.ts
+│   ├── store/
+│   │   └── useStore.ts
+│   ├── types/
 │   │   └── index.ts
-│   ├── App.tsx           # Main app component
-│   └── main.tsx          # Entry point
-├── public/               # Static assets
-├── .env.example          # Environment template
-├── package.json          # Dependencies
-├── tsconfig.json         # TypeScript config
-├── vite.config.ts        # Vite config
-├── README.md             # This file
-└── TEAM_ROLES.md         # Team task breakdown
+│   ├── App.tsx
+│   └── main.tsx
+├── frontend/                   # 🎨 Frontend docs & notes (Person 1)
+│   └── README.md
+├── backend/                    # 🔌 Midnight blockchain (Person 2 & 3)
+│   ├── contracts/              # Compact smart contracts (Person 2)
+│   │   ├── PatientMemory.compact
+│   │   └── PatientMemory.abi.json
+│   ├── lib/                    # SDK integration (Person 3)
+│   │   ├── provider.ts
+│   │   ├── wallet.ts
+│   │   ├── contract.ts
+│   │   └── crypto.ts
+│   ├── types/                  # Shared TypeScript types
+│   │   └── contract.ts
+│   ├── supabase_schema.sql     # Database schema
+│   ├── package.json
+│   └── README.md
+├── docs/                       # 📚 Team documentation
+│   ├── GETTING_STARTED.md
+│   ├── PROJECT_OVERVIEW.md
+│   ├── TEAM_ROLES.md
+│   ├── QUICKSTART_FRONTEND.md
+│   ├── QUICKSTART_SMART_CONTRACT.md
+│   └── QUICKSTART_BACKEND.md
+├── .env.example
+├── index.html
+├── package.json
+├── tsconfig.json
+├── vite.config.ts
+└── README.md
 ```
 
 ---
