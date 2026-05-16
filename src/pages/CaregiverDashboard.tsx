@@ -24,43 +24,43 @@ export default function CaregiverDashboard() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row">
+    <div className="min-h-screen bg-background flex flex-col md:flex-row">
       {/* Sidebar */}
-      <div className="w-full md:w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold text-gray-900">Dashboard</h2>
-          <p className="text-sm text-gray-500 truncate">{user.email}</p>
+      <div className="w-full md:w-64 bg-surface border-r border-border flex flex-col">
+        <div className="p-4 border-b border-border">
+          <h2 className="text-xl font-bold text-text">Dashboard</h2>
+          <p className="text-sm text-muted truncate">{user.email}</p>
         </div>
         <nav className="flex-1 p-4 space-y-2">
-          <Link to="/dashboard" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700">
-            <Users className="w-5 h-5 text-blue-500" />
+          <Link to="/dashboard" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background text-text">
+            <Users className="w-5 h-5 text-primary" />
             <span className="font-medium">People (Faces)</span>
           </Link>
-          <Link to="/dashboard/objects" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700">
-            <Box className="w-5 h-5 text-emerald-500" />
+          <Link to="/dashboard/objects" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background text-text">
+            <Box className="w-5 h-5 text-accent" />
             <span className="font-medium">Known Objects</span>
           </Link>
-          <Link to="/dashboard/places" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700">
-            <MapPin className="w-5 h-5 text-rose-500" />
+          <Link to="/dashboard/places" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background text-text">
+            <MapPin className="w-5 h-5 text-secondary" />
             <span className="font-medium">Safe Places</span>
           </Link>
-          <Link to="/dashboard/events" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700">
-            <Activity className="w-5 h-5 text-indigo-500" />
+          <Link to="/dashboard/events" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background text-text">
+            <Activity className="w-5 h-5 text-primary" />
             <span className="font-medium">Memory Events</span>
           </Link>
-          <Link to="/dashboard/privacy" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-100 text-gray-700">
-            <Shield className="w-5 h-5 text-purple-500" />
+          <Link to="/dashboard/privacy" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-background text-text">
+            <Shield className="w-5 h-5 text-midnight" />
             <span className="font-medium">Privacy</span>
           </Link>
         </nav>
         {/* Privacy toggle + wallet in sidebar */}
-        <div className="p-4 border-t border-gray-200 space-y-3">
+        <div className="p-4 border-t border-border space-y-3">
           <PrivacyToggle />
           <WalletConnect />
           <Button variant="outline" className="w-full justify-start" onClick={() => navigate('/')}>
             <ArrowLeft className="w-4 h-4 mr-2" /> Back to App
           </Button>
-          <Button variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleLogout}>
+          <Button variant="ghost" className="w-full justify-start text-secondary hover:opacity-80" onClick={handleLogout}>
             <LogOut className="w-4 h-4 mr-2" /> Sign Out
           </Button>
         </div>
@@ -86,30 +86,30 @@ function PeopleManager() {
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Registered People</h1>
+        <h1 className="text-2xl font-bold text-text">Registered People</h1>
         <Button>Add Person</Button>
       </div>
 
       {people.length === 0 ? (
-        <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-xl">
-          <p className="text-gray-500 mb-4">No people have been registered yet.</p>
+        <div className="text-center py-12 border-2 border-dashed border-border rounded-xl">
+          <p className="text-muted mb-4">No people have been registered yet.</p>
           <Button variant="outline">Add First Person</Button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {people.map(person => (
-            <div key={person.id} className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex items-center space-x-4">
+            <div key={person.id} className="bg-surface p-4 rounded-xl shadow-sm border border-border flex items-center space-x-4">
               {person.image_url ? (
                 <img src={person.image_url} alt={person.name} className="w-16 h-16 rounded-full object-cover" />
               ) : (
-                <div className="w-16 h-16 rounded-full bg-gray-200 flex flex-shrink-0 items-center justify-center text-gray-400">
+                <div className="w-16 h-16 rounded-full bg-border flex flex-shrink-0 items-center justify-center text-muted">
                   <Users className="w-8 h-8" />
                 </div>
               )}
               <div>
-                <h3 className="font-bold text-lg text-gray-900">{person.name}</h3>
-                <p className="text-sm text-blue-600 font-medium">{person.relationship}</p>
-                <p className="text-sm text-gray-500 mt-1 line-clamp-2">{person.note}</p>
+                <h3 className="font-bold text-lg text-text">{person.name}</h3>
+                <p className="text-sm text-primary font-medium">{person.relationship}</p>
+                <p className="text-sm text-muted mt-1 line-clamp-2">{person.note}</p>
               </div>
             </div>
           ))}
