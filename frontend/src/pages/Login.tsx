@@ -4,6 +4,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Icon } from '../components/ui/Icon';
 import { useNavigate } from 'react-router-dom';
+import { useStore } from '../store/useStore';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const setUser = useStore((state) => state.setUser);
 
   // Demo credentials
   const DEMO_EMAIL = 'demo@memorylens.app';
@@ -24,8 +26,8 @@ export default function Login() {
 
     // Check for demo credentials first
     if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
-      // Demo login - bypass Supabase
-      console.log('Demo login successful');
+      // Demo login - set a mock user so the dashboard auth check passes
+      setUser({ id: 'demo', email: DEMO_EMAIL, role: 'demo' });
       navigate('/dashboard');
       setLoading(false);
       return;
@@ -44,6 +46,11 @@ export default function Login() {
   const handleDemoLogin = () => {
     setEmail(DEMO_EMAIL);
     setPassword(DEMO_PASSWORD);
+    // Auto-submit after filling credentials
+    setTimeout(() => {
+      setUser({ id: 'demo', email: DEMO_EMAIL, role: 'demo' });
+      navigate('/dashboard');
+    }, 100);
   };
 
   return (

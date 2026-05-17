@@ -237,17 +237,19 @@ export default function CameraView() {
 
       {/* ── AI loading overlay ───────────────────────────────────────────── */}
       {!isModelsLoaded && (
-        <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-surface/90">
-          <span
-            className="material-symbols-outlined text-primary animate-spin mb-4"
-            style={{ fontSize: 48 }}
-          >
-            progress_activity
-          </span>
-          <p className="font-headline-md text-headline-md text-on-surface mb-2">
+        <div className="fixed inset-0 z-[60] flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm">
+          {/* Spinner ring */}
+          <div className="relative w-16 h-16 mb-6">
+            <div className="absolute inset-0 rounded-full border-4 border-primary/20" />
+            <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary animate-spin" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Icon name="visibility" size={24} className="text-primary" filled />
+            </div>
+          </div>
+          <p className="font-headline-sm text-headline-sm text-on-surface mb-2">
             Loading AI Models…
           </p>
-          <p className="font-body-md text-body-md text-on-surface-variant max-w-sm text-center">
+          <p className="font-body-md text-body-md text-on-surface-variant max-w-xs text-center">
             MemoryLens runs locally in your browser for privacy. Downloading
             standard models once…
           </p>
