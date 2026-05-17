@@ -208,7 +208,7 @@ Rebuild the MemoryLens frontend to match the Stitch "Digital Sanctuary" design s
     - `<BottomNav currentPath="/compare" />`
     - _Requirements: REQ-012, REQ-016, REQ-017, REQ-018_
 
-  - [ ] 5.6 Rebuild `frontend/src/pages/PrivacyDashboard.tsx` to Stitch design
+  - [x] 5.6 Rebuild `frontend/src/pages/PrivacyDashboard.tsx` to Stitch design
     - `<TopAppBar />` sticky
     - Header section: `gradient-midnight rounded-xl p-8`; shield icon + "Privacy Dashboard" in white; `<WalletConnect />` card
     - Layout: `grid lg:grid-cols-12 gap-stack-gap` (7 + 5)
@@ -227,11 +227,11 @@ Rebuild the MemoryLens frontend to match the Stitch "Digital Sanctuary" design s
     - **Property 5: Dark mode immunity** — render each page with `prefers-color-scheme: dark` media query mocked and assert that `background-color` of `body` remains `#fcf9f4` and no color token changes
     - **Validates: REQ-001**
 
-- [~] 6. Checkpoint — Phase 3 complete
+- [x] 6. Checkpoint — Phase 3 complete
   - Ensure all tests pass, ask the user if questions arise.
 
 - [ ] 7. Phase 4 — Integration and wiring
-  - [~] 7.1 Update `frontend/src/store/useStore.ts` — add `ToastData` type and new state fields
+  - [ ] 7.1 Update `frontend/src/store/useStore.ts` — add `ToastData` type and new state fields
     - Define `ToastData` interface: `icon: string`, `message: React.ReactNode`, `id: string`
     - Add `activeToast: ToastData | null` to `AppState`
     - Add `recognizedPerson: PersonMemory | null` to `AppState`
@@ -239,7 +239,7 @@ Rebuild the MemoryLens frontend to match the Stitch "Digital Sanctuary" design s
     - Add `setActiveToast`, `setRecognizedPerson`, `setActiveNavSection` actions
     - _Requirements: REQ-008, REQ-011_
 
-  - [~] 7.2 Update `frontend/src/App.tsx` — wire `BottomNav`, update routes, remove inline nav
+  - [x] 7.2 Update `frontend/src/App.tsx` — wire `BottomNav`, update routes, remove inline nav
     - Remove any inline bottom navigation markup from `App.tsx`
     - Import and render `<BottomNav currentPath={location.pathname} />` using `useLocation()`
     - Hide `BottomNav` on `/login` and `/dashboard/*` routes using conditional rendering
@@ -254,7 +254,7 @@ Rebuild the MemoryLens frontend to match the Stitch "Digital Sanctuary" design s
     - **Property 7: State preservation** — set Zustand store state (people, objects, useMidnight, walletConnected), navigate between routes, and assert all state values remain unchanged after each navigation
     - **Validates: REQ-015**
 
-- [~] 8. Final checkpoint — Ensure all tests pass
+- [x] 8. Final checkpoint — Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ---

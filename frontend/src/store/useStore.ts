@@ -1,5 +1,12 @@
 import { create } from 'zustand';
+import type { ReactNode } from 'react';
 import { PersonMemory, ObjectMemory, PlaceMemory, SpeechEvent } from '../types';
+
+export interface ToastData {
+  icon: string;
+  message: ReactNode;
+  id: string;
+}
 
 interface MidnightState {
   useMidnight: boolean;
@@ -28,6 +35,13 @@ interface AppState extends MidnightState {
   setWalletConnected: (connected: boolean, address?: string) => void;
   setPendingTx: (pending: boolean) => void;
   setLastTxHash: (hash: string | null) => void;
+  // Redesign state
+  activeToast: ToastData | null;
+  recognizedPerson: PersonMemory | null;
+  activeNavSection: string;
+  setActiveToast: (toast: ToastData | null) => void;
+  setRecognizedPerson: (person: PersonMemory | null) => void;
+  setActiveNavSection: (section: string) => void;
 }
 
 export const useStore = create<AppState>((set) => ({
@@ -56,4 +70,11 @@ export const useStore = create<AppState>((set) => ({
     set({ walletConnected: connected, walletAddress: address }),
   setPendingTx: (pending) => set({ pendingTx: pending }),
   setLastTxHash: (hash) => set({ lastTxHash: hash }),
+  // Redesign state
+  activeToast: null,
+  recognizedPerson: null,
+  activeNavSection: 'people',
+  setActiveToast: (toast) => set({ activeToast: toast }),
+  setRecognizedPerson: (person) => set({ recognizedPerson: person }),
+  setActiveNavSection: (section) => set({ activeNavSection: section }),
 }));

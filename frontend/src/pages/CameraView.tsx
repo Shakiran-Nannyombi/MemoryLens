@@ -202,8 +202,17 @@ export default function CameraView() {
           audio={false}
           ref={webcamRef}
           screenshotFormat="image/jpeg"
+          screenshotQuality={0.92}
           videoConstraints={{ facingMode: 'environment' }}
           className="w-full h-full object-cover"
+          disablePictureInPicture={false}
+          forceScreenshotSourceSize={false}
+          imageSmoothing={true}
+          mirrored={false}
+          minScreenshotHeight={undefined}
+          minScreenshotWidth={undefined}
+          onUserMedia={undefined}
+          onUserMediaError={undefined}
         />
       </div>
 

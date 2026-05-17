@@ -1,3 +1,4 @@
+import React from 'react';
 import { Icon } from './ui/Icon';
 
 interface PersonCardProps {
@@ -10,7 +11,7 @@ interface PersonCardProps {
     size?: 'sm' | 'lg';    // sm = Lens View card, lg = Dashboard card
 }
 
-export function PersonCard({
+export const PersonCard: React.FC<PersonCardProps> = ({
     name,
     relationship,
     imageUrl,
@@ -18,7 +19,7 @@ export function PersonCard({
     isPrimary = false,
     isEncrypted = false,
     size = 'lg',
-}: PersonCardProps) {
+}) => {
     const avatarSize = size === 'sm' ? 'w-16 h-16' : 'w-24 h-24';
     const initial = name.charAt(0).toUpperCase();
 
@@ -80,4 +81,4 @@ export function PersonCard({
             )}
         </div>
     );
-}
+};

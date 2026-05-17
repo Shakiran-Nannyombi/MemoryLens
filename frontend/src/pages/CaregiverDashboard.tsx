@@ -7,6 +7,7 @@ import { PersonCard } from '../components/PersonCard';
 import BottomNav from '../components/BottomNav';
 import { Icon } from '../components/ui/Icon';
 import { supabase } from '../lib/supabase';
+import type { PersonMemory, ObjectMemory, PlaceMemory } from '../types';
 
 type ActiveSection = 'people' | 'objects' | 'places' | 'events' | 'privacy';
 
@@ -135,7 +136,7 @@ export default function CaregiverDashboard() {
 
 /* ─── People Section ─────────────────────────────────────────────────────── */
 
-function PeopleSection({ people }: { people: ReturnType<typeof useStore>['people'] }) {
+function PeopleSection({ people }: { people: PersonMemory[] }) {
   return (
     <section>
       {/* Section heading */}
@@ -189,7 +190,7 @@ function PeopleSection({ people }: { people: ReturnType<typeof useStore>['people
 
 /* ─── Objects Section ────────────────────────────────────────────────────── */
 
-function ObjectsSection({ objects }: { objects: ReturnType<typeof useStore>['objects'] }) {
+function ObjectsSection({ objects }: { objects: ObjectMemory[] }) {
   return (
     <section className="bg-white rounded-xl p-6 shadow-sm border border-secondary/5">
       <div className="flex items-center justify-between mb-6">
@@ -237,7 +238,7 @@ function ObjectsSection({ objects }: { objects: ReturnType<typeof useStore>['obj
 
 /* ─── Places Section ─────────────────────────────────────────────────────── */
 
-function PlacesSection({ places }: { places: ReturnType<typeof useStore>['places'] }) {
+function PlacesSection({ places }: { places: PlaceMemory[] }) {
   return (
     <section className="bg-white rounded-xl p-6 shadow-sm border border-secondary/5">
       <div className="flex items-center justify-between mb-6">

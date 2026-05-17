@@ -44,7 +44,7 @@ interface UserMessageProps {
   message: Message;
 }
 
-function UserMessage({ message }: UserMessageProps) {
+const UserMessage: React.FC<UserMessageProps> = ({ message }) => {
   return (
     <div className="flex flex-col items-end w-full">
       <div
@@ -65,7 +65,7 @@ interface AIMessageProps {
   message: Message;
 }
 
-function AIMessage({ message }: AIMessageProps) {
+const AIMessage: React.FC<AIMessageProps> = ({ message }) => {
   return (
     <div className="flex flex-col items-start w-full">
       <div
