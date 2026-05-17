@@ -6,4 +6,5 @@ coverage/
 *.log
 .env*
 !.env.example
+.kiro/specs/*
 stitch_memorylens_ai_assistant/*

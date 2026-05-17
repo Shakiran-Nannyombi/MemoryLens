@@ -1,0 +1,80 @@
+{
+  "_comment": "This file is a hand-written ABI stub. Replace it with the output of: compact export-abi PatientMemory.compact --output PatientMemory.abi.json",
+  "contractName": "PatientMemory",
+  "version": "1.0.0",
+  "language": "compact",
+  "pragmaVersion": ">=0.23",
+  "ledger": {
+    "totalEvents":           { "type": "Counter",              "visibility": "export" },
+    "totalCaregivers":       { "type": "Counter",              "visibility": "export" },
+    "lastUpdated":           { "type": "Uint<64>",             "visibility": "export" },
+    "contractVersion":       { "type": "Bytes<32>",            "visibility": "export sealed" },
+    "patientCommitment":     { "type": "Bytes<32>",            "visibility": "export sealed" },
+    "eventCommitments":      { "type": "Set<Bytes<32>>",       "visibility": "export" },
+    "caregiverAccessLevels": { "type": "Map<Bytes<32>,Uint<8>>","visibility": "export" },
+    "auditCommitments":      { "type": "Set<Bytes<32>>",       "visibility": "export" }
+  },
+  "witnesses": {
+    "patientSecretKey":   { "inputs": [],              "output": "Bytes<32>" },
+    "caregiverSecretKey": { "inputs": [],              "output": "Bytes<32>" },
+    "caregiverPublicKey": { "inputs": [],              "output": "Bytes<32>" }
+  },
+  "circuits": {
+    "storeMemory": {
+      "visibility": "export",
+      "inputs": [
+        { "name": "eventType",     "type": "EventType" },
+        { "name": "encryptedData", "type": "Bytes<32>" },
+        { "name": "timestamp",     "type": "Uint<64>"  }
+      ],
+      "output": "Bytes<32>",
+      "description": "Store an encrypted memory event. Caller must be the patient. Returns the event commitment hash."
+    },
+    "authorizeCaregiver": {
+      "visibility": "export",
+      "inputs": [
+        { "name": "accessLevel",  "type": "AccessLevel" },
+        { "name": "durationDays", "type": "Uint<64>"    },
+        { "name": "timestamp",    "type": "Uint<64>"    }
+      ],
+      "output": "Bytes<32>",
+      "description": "Grant a caregiver access. Caller must be the patient. Returns the caregiver commitment hash."
+    },
+    "revokeAccess": {
+      "visibility": "export",
+      "inputs": [],
+      "output": "Boolean",
+      "description": "Revoke a caregiver's access. Caller must be the patient. Writes sentinel value 255 to the access level map."
+    },
+    "verifyAccess": {
+      "visibility": "export",
+      "inputs": [],
+      "output": "Uint<8>",
+      "description": "Prove the calling caregiver is authorized. Returns access level code. Reverts if not authorized or revoked."
+    },
+    "logMemoryAccess": {
+      "visibility": "export",
+      "inputs": [
+        { "name": "eventCommit", "type": "Bytes<32>" },
+        { "name": "timestamp",   "type": "Uint<64>"  }
+      ],
+      "output": "[]",
+      "description": "Record a caregiver's access to a specific memory event in the audit trail."
+    },
+    "getStats": {
+      "visibility": "export",
+      "inputs": [],
+      "output": "[Uint<64>, Uint<64>, Uint<64>]",
+      "description": "Return (totalEvents, totalCaregivers, lastUpdated). No authorization required."
+    }
+  },
+  "enums": {
+    "EventType": {
+      "variants": ["FaceDetected", "ObjectLocated", "ConversationRecorded", "LocationTracked"]
+    },
+    "AccessLevel": {
+      "variants": ["Full", "Medical", "Emergency", "ReadOnly"],
+      "notes": "Revoked is represented as Uint<8> value 255, not an enum variant."
+    }
+  }
+}

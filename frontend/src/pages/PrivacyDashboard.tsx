@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Shield, Users, Clock, Trash2, Plus } from 'lucide-react';
-import { Button } from '../components/ui/button';
 import { WalletConnect } from '../components/WalletConnect';
+import { PrivacyToggle } from '../components/PrivacyToggle';
+import { TopAppBar } from '../components/TopAppBar';
+import BottomNav from '../components/BottomNav';
+import { Icon } from '../components/ui/Icon';
 import { useStore } from '../store/useStore';
 import { mockGetAuditTrail, mockGetStats } from '../lib/mockMidnight';
-import { cn } from '../lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 
 interface AuditEntry {
@@ -20,11 +21,16 @@ interface Stats {
 }
 
 const ACCESS_TYPES = [
-    { key: 'faces', label: 'Face Recognition Data', description: 'Biometric face descriptors' },
-    { key: 'voice', label: 'Voice Transcripts', description: 'Conversation recordings' },
-    { key: 'objects', label: 'Object Locations', description: 'Where items were last seen' },
-    { key: 'location', label: 'GPS Coordinates', description: 'Location history' },
-    { key: 'medications', label: 'Medication Reminders', description: 'Medical schedule data' },
+    { key: 'faces', icon: 'face', label: 'Face Recognition Data', description: 'Biometric face descriptors' },
+    { key: 'voice', icon: 'settings_voice', label: 'Voice Transcripts', description: 'Conversation recordings' },
+    { key: 'objects', icon: 'category', label: 'Object Locations', description: 'Where items were last seen' },
+    { key: 'location', icon: 'location_on', label: 'GPS Coordinates', description: 'Location history' },
+    { key: 'medications', icon: 'health_and_safety', label: 'Medication Reminders', description: 'Medical schedule data' },
+];
+
+const MOCK_CAREGIVERS = [
+    { id: '1', name: 'Dr. Smith', role: 'Medical Professional' },
+    { id: '2', name: 'Nurse Joy', role: 'Primary Caregiver' },
 ];
 
 export default function PrivacyDashboard() {
@@ -48,149 +54,235 @@ export default function PrivacyDashboard() {
             .finally(() => setLoadingAudit(false));
     }, [walletConnected]);
 
-    const togglePermission = (key: string) =>
-        setPermissions((prev) => ({ ...prev, [key]: !prev[key] }));
+    const togglePermission = (key: string, value: boolean) =>
+        setPermissions((prev) => ({ ...prev, [key]: value }));
 
+    // ── Disconnected state ──────────────────────────────────────────────────
     if (!walletConnected) {
         return (
-            <div className="max-w-md mx-auto mt-12 space-y-4 text-center px-4">
-                <Shield className="w-12 h-12 text-purple-400 mx-auto" />
-                <h2 className="text-xl font-bold text-gray-900">Connect Your Wallet</h2>
-                <p className="text-sm text-gray-500">
-                    Connect your 1AM wallet to manage privacy settings and view your audit trail.
-                </p>
-                <WalletConnect />
+            <div className="min-h-screen bg-background flex flex-col">
+                <TopAppBar />
+                <main className="flex-1 flex items-center justify-center px-container-margin py-stack-gap">
+                    <div className="bg-surface-container-lowest rounded-xl p-8 shadow-soft border border-surface-variant/30 max-w-sm w-full text-center space-y-4">
+                        <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mx-auto">
+                            <Icon name="shield" size={32} className="text-secondary" filled />
+                        </div>
+                        <h2 className="font-headline-md text-headline-md text-on-surface">
+                            Connect Your Wallet
+                        </h2>
+                        <p className="font-body-md text-body-md text-on-surface-variant">
+                            Connect your 1AM wallet to manage privacy settings and view your audit trail.
+                        </p>
+                        <WalletConnect className="mx-auto" />
+                    </div>
+                </main>
+                <BottomNav currentPath="/privacy" />
             </div>
         );
     }
 
+    // ── Connected state ─────────────────────────────────────────────────────
     return (
-        <div className="max-w-2xl mx-auto space-y-6 p-4 pb-24">
-            <div className="flex items-center gap-2">
-                <Shield className="w-6 h-6 text-purple-600" />
-                <h1 className="text-2xl font-bold text-gray-900">Privacy Settings</h1>
-            </div>
+        <div className="min-h-screen bg-background">
+            <TopAppBar />
 
-            {/* Stats */}
-            {stats && (
-                <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-purple-50 border border-purple-100 rounded-xl p-4">
-                        <p className="text-2xl font-bold text-purple-700">{stats.totalEvents}</p>
-                        <p className="text-xs text-purple-500 mt-0.5">Encrypted memories</p>
-                    </div>
-                    <div className="bg-purple-50 border border-purple-100 rounded-xl p-4">
-                        <p className="text-2xl font-bold text-purple-700">{stats.totalCaregivers}</p>
-                        <p className="text-xs text-purple-500 mt-0.5">Authorized caregivers</p>
-                    </div>
-                </div>
-            )}
+            <main className="max-w-7xl mx-auto px-container-margin pt-stack-gap space-y-stack-gap pb-32">
 
-            {/* Wallet */}
-            <section className="bg-white rounded-xl border border-gray-200 p-4 space-y-3">
-                <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">Wallet</h2>
-                <WalletConnect />
-            </section>
-
-            {/* Selective Disclosure */}
-            <section className="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
-                <div className="flex items-center gap-2">
-                    <Shield className="w-4 h-4 text-purple-600" />
-                    <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                        Data Access Control
-                    </h2>
-                </div>
-                <p className="text-xs text-gray-500">
-                    Choose which types of data caregivers can access.
-                </p>
-                <div className="space-y-3">
-                    {ACCESS_TYPES.map(({ key, label, description }) => (
-                        <div key={key} className="flex items-center justify-between gap-3">
-                            <div>
-                                <p className="text-sm font-medium text-gray-800">{label}</p>
-                                <p className="text-xs text-gray-400">{description}</p>
+                {/* ── Header section: gradient-midnight ── */}
+                <section className="gradient-midnight rounded-xl p-8 shadow-soft">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                        {/* Left: title */}
+                        <div className="space-y-unit">
+                            <div className="flex items-center gap-3">
+                                <Icon name="shield" size={40} className="text-white" filled />
+                                <h2 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-white">
+                                    Privacy Dashboard
+                                </h2>
                             </div>
-                            <button
-                                role="switch"
-                                aria-checked={permissions[key]}
-                                onClick={() => togglePermission(key)}
-                                className={cn(
-                                    'relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent',
-                                    'transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-purple-500',
-                                    permissions[key] ? 'bg-purple-600' : 'bg-gray-300'
-                                )}
-                            >
-                                <span className={cn(
-                                    'pointer-events-none inline-block h-4 w-4 rounded-full bg-white shadow transform transition-transform duration-200',
-                                    permissions[key] ? 'translate-x-4' : 'translate-x-0'
-                                )} />
-                            </button>
+                            <p className="font-body-md text-body-md text-white/80">
+                                Manage your digital sanctuary and encrypted memory access.
+                            </p>
                         </div>
-                    ))}
-                </div>
-            </section>
 
-            {/* Authorized Caregivers */}
-            <section className="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-purple-600" />
-                        <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                            Authorized Caregivers
-                        </h2>
+                        {/* Right: WalletConnect card (glassmorphism) */}
+                        <WalletConnect />
                     </div>
-                    <Button size="sm" className="bg-purple-600 hover:bg-purple-700 text-white gap-1 h-8 text-xs">
-                        <Plus className="w-3 h-3" /> Add
-                    </Button>
-                </div>
+                </section>
 
-                {/* Mock caregivers */}
-                {[
-                    { name: 'Dr. Smith', role: 'Medical', access: 'Medications only' },
-                    { name: 'Nurse Joy', role: 'Emergency', access: 'Full access' },
-                ].map((c) => (
-                    <div key={c.name} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div>
-                            <p className="text-sm font-medium text-gray-800">{c.name}</p>
-                            <p className="text-xs text-gray-500">{c.role} · {c.access}</p>
+                {/* ── Two-column grid ── */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-stack-gap">
+
+                    {/* ── Left column (7) ── */}
+                    <div className="lg:col-span-7 space-y-stack-gap">
+
+                        {/* Selective Disclosure Card */}
+                        <div className="bg-surface-container-lowest rounded-xl p-6 shadow-soft border border-surface-variant/30">
+                            <h3 className="font-headline-md text-headline-md text-on-surface mb-6">
+                                Selective Disclosure
+                            </h3>
+                            <div className="space-y-4">
+                                {ACCESS_TYPES.map(({ key, icon, label, description }) => (
+                                    <div
+                                        key={key}
+                                        className="bg-surface-container-low rounded-lg p-4 flex items-center justify-between"
+                                    >
+                                        {/* Left: icon + label + description */}
+                                        <div className="flex items-center gap-4">
+                                            <Icon name={icon} size={24} className="text-secondary" />
+                                            <div>
+                                                <p className="font-label-lg text-label-lg text-on-surface">
+                                                    {label}
+                                                </p>
+                                                <p className="font-body-md text-sm text-on-surface-variant">
+                                                    {description}
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Right: PrivacyToggle */}
+                                        <PrivacyToggle
+                                            checked={permissions[key]}
+                                            onChange={(v) => togglePermission(key, v)}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                        <button className="text-red-400 hover:text-red-600 transition-colors" aria-label="Revoke access">
-                            <Trash2 className="w-4 h-4" />
-                        </button>
+
+                        {/* Audit Trail Card */}
+                        <div className="bg-surface-container-lowest rounded-xl p-6 shadow-soft border border-surface-variant/30">
+                            <h3 className="font-headline-md text-headline-md text-on-surface mb-6">
+                                Audit Trail
+                            </h3>
+
+                            {loadingAudit ? (
+                                <p className="font-body-md text-body-md text-on-surface-variant text-center py-4">
+                                    Loading audit trail…
+                                </p>
+                            ) : auditLog.length === 0 ? (
+                                <p className="font-body-md text-body-md text-on-surface-variant text-center py-4">
+                                    No access events yet.
+                                </p>
+                            ) : (
+                                <div className="relative pl-8 before:absolute before:left-3 before:top-0 before:bottom-0 before:w-0.5 before:bg-outline-variant">
+                                    {auditLog.map((entry, i) => (
+                                        <div key={i} className="relative mb-6">
+                                            {/* Timeline node */}
+                                            <div
+                                                className={[
+                                                    'absolute -left-5 w-6 h-6 rounded-full flex items-center justify-center',
+                                                    i === 0
+                                                        ? 'bg-secondary ring-4 ring-background'
+                                                        : 'bg-surface-container-highest',
+                                                ].join(' ')}
+                                            >
+                                                <Icon
+                                                    name={i === 0 ? 'lock' : 'history'}
+                                                    size={12}
+                                                    className={i === 0 ? 'text-white' : 'text-on-surface-variant'}
+                                                    filled={i === 0}
+                                                />
+                                            </div>
+
+                                            {/* Entry content */}
+                                            <div>
+                                                <p className="font-body-md text-body-md text-on-surface">
+                                                    {entry.caregiverId}
+                                                </p>
+                                                <p className="font-body-md text-sm text-on-surface-variant capitalize">
+                                                    {entry.action.replace(/_/g, ' ')}
+                                                </p>
+                                                <p className="text-xs text-outline mt-1">
+                                                    {formatDistanceToNow(entry.accessedAt, { addSuffix: true })}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
-                ))}
-            </section>
 
-            {/* Audit Trail */}
-            <section className="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
-                <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-purple-600" />
-                    <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide">
-                        Access History
-                    </h2>
-                </div>
+                    {/* ── Right column (5) ── */}
+                    <div className="lg:col-span-5 space-y-stack-gap">
 
-                {loadingAudit ? (
-                    <p className="text-sm text-gray-400 text-center py-4">Loading audit trail...</p>
-                ) : auditLog.length === 0 ? (
-                    <p className="text-sm text-gray-400 text-center py-4">No access events yet.</p>
-                ) : (
-                    <div className="space-y-2">
-                        {auditLog.map((entry, i) => (
-                            <div key={i} className="flex items-start justify-between gap-2 p-3 bg-gray-50 rounded-lg">
-                                <div>
-                                    <p className="text-sm font-medium text-gray-800">{entry.caregiverId}</p>
-                                    <p className="text-xs text-gray-500 capitalize">
-                                        {entry.action.replace(/_/g, ' ')}
+                        {/* Authorized Caregivers Card */}
+                        <div className="bg-surface-container-lowest rounded-xl p-6 shadow-soft border border-surface-variant/30">
+                            <div className="flex items-center justify-between mb-6">
+                                <h3 className="font-headline-md text-headline-md text-on-surface">
+                                    Authorized Caregivers
+                                </h3>
+                                <button
+                                    aria-label="Add caregiver"
+                                    className="p-2 rounded-full hover:bg-surface-container text-secondary transition-colors min-h-[48px] min-w-[48px] flex items-center justify-center active:scale-95 duration-150"
+                                >
+                                    <Icon name="person_add" size={24} />
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                {MOCK_CAREGIVERS.map((caregiver) => (
+                                    <div
+                                        key={caregiver.id}
+                                        className="bg-surface rounded-xl border border-outline-variant/20 p-4 flex items-center gap-4"
+                                    >
+                                        {/* Avatar */}
+                                        <div className="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center shrink-0">
+                                            <Icon name="person" size={24} className="text-on-surface-variant" />
+                                        </div>
+
+                                        {/* Info */}
+                                        <div className="flex-1 min-w-0">
+                                            <p className="font-label-lg text-label-lg text-on-surface truncate">
+                                                {caregiver.name}
+                                            </p>
+                                            <p className="font-body-md text-sm text-on-surface-variant truncate">
+                                                {caregiver.role}
+                                            </p>
+                                        </div>
+
+                                        {/* Revoke button */}
+                                        <button
+                                            aria-label={`Revoke access for ${caregiver.name}`}
+                                            className="text-error hover:bg-error/10 rounded-lg h-[48px] px-3 transition-colors active:scale-95 duration-150 font-label-lg text-sm shrink-0"
+                                        >
+                                            Revoke
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+
+                            {/* Info note */}
+                            <div className="mt-6 bg-secondary/5 border border-secondary/20 border-dashed rounded-xl p-4">
+                                <div className="flex gap-3">
+                                    <Icon name="info" size={20} className="text-secondary shrink-0 mt-0.5" />
+                                    <p className="font-body-md text-sm text-on-surface-variant italic">
+                                        Revoking a caregiver immediately terminates their access to all future
+                                        memories and deletes their current session keys.
                                     </p>
                                 </div>
-                                <span className="text-xs text-gray-400 shrink-0">
-                                    {formatDistanceToNow(entry.accessedAt, { addSuffix: true })}
-                                </span>
                             </div>
-                        ))}
+                        </div>
+
+                        {/* Privacy Tips Card */}
+                        <div className="bg-primary p-6 rounded-xl text-white shadow-soft">
+                            <h4 className="font-headline-md text-headline-md text-white mb-2">
+                                Pro Tip: Biometric Lock
+                            </h4>
+                            <p className="font-body-md text-sm text-white/80 mb-4">
+                                Enable 2FA for all memory deletions to ensure your history remains under
+                                your absolute control.
+                            </p>
+                            <button className="bg-white text-primary rounded-lg px-4 py-2 font-label-lg text-label-lg active:scale-95 duration-150 transition-colors hover:bg-primary-fixed w-full">
+                                Setup Security Key
+                            </button>
+                        </div>
+
                     </div>
-                )}
-            </section>
+                </div>
+            </main>
+
+            <BottomNav currentPath="/privacy" />
         </div>
     );
 }

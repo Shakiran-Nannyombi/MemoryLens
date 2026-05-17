@@ -1,0 +1,247 @@
+pragma language_version >= 0.17;
+
+import CompactStandardLibrary;
+
+// ---------------------------------------------------------------------------
+// LEDGER STATE
+// ---------------------------------------------------------------------------
+
+export ledger totalEvents: Counter;
+export ledger totalCaregivers: Counter;
+export ledger lastUpdated: Uint<64>;
+
+export sealed ledger contractVersion: Bytes<32>;
+export sealed ledger patientCommitment: Bytes<32>;
+
+export ledger eventCommitments: Set<Bytes<32>>;
+export ledger caregiverAccessLevels: Map<Bytes<32>, Uint<8>>;
+export ledger auditCommitments: Set<Bytes<32>>;
+
+// ---------------------------------------------------------------------------
+// WITNESSES
+// ---------------------------------------------------------------------------
+
+witness caregiverPublicKey(): Bytes<32>;
+
+// ---------------------------------------------------------------------------
+// HELPERS
+// ---------------------------------------------------------------------------
+
+pure circuit deriveCaregiverCommitment(pk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>(
+    [pad(32, "memorylens:caregiver:v1"), pk]
+  );
+}
+
+pure circuit encodeEventType(et: Uint<8>): Bytes<32> {
+  if (et == (0 as Uint<8>)) return pad(32, "event:face");
+  if (et == (1 as Uint<8>)) return pad(32, "event:object");
+  if (et == (2 as Uint<8>)) return pad(32, "event:conversation");
+  return pad(32, "event:location");
+}
+
+// ---------------------------------------------------------------------------
+// CONSTRUCTOR
+// ---------------------------------------------------------------------------
+
+constructor(initialPatientCommitment: Bytes<32>) {
+  patientCommitment = disclose(initialPatientCommitment);
+  contractVersion   = disclose(pad(32, "1.0.0"));
+  lastUpdated       = disclose(0 as Uint<64>);
+}
+
+// ---------------------------------------------------------------------------
+// CAREGIVER AUTH
+// Generates a commitment from the caregiver's public key (via witness).
+// Padding hashes added to meet minimum ZK circuit size requirement (k>=7).
+// ---------------------------------------------------------------------------
+
+export circuit authorizeCaregiver(
+  accessLevel: Uint<8>,
+  durationDays: Uint<64>
+): Bytes<32> {
+
+  const pk = caregiverPublicKey();
+  const cgCommit = deriveCaregiverCommitment(pk);
+
+  const _h0  = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:0"),  cgCommit]);
+  const _h1  = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:1"),  _h0]);
+  const _h2  = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:2"),  _h1]);
+  const _h3  = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:3"),  _h2]);
+  const _h4  = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:4"),  _h3]);
+  const _h5  = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:5"),  _h4]);
+  const _h6  = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:6"),  _h5]);
+  const _h7  = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:7"),  _h6]);
+  const _h8  = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:8"),  _h7]);
+  const _h9  = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:9"),  _h8]);
+  const _h10 = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:10"), _h9]);
+  const _h11 = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:11"), _h10]);
+  const _h12 = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:12"), _h11]);
+  const _h13 = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:13"), _h12]);
+  const _h14 = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:14"), _h13]);
+  const _h15 = persistentHash<Vector<2, Bytes<32>>>([pad(32, "pad:15"), _h14]);
+
+  return disclose(cgCommit);
+}
+
+// ---------------------------------------------------------------------------
+// REGISTER CAREGIVER
+// ---------------------------------------------------------------------------
+
+export circuit registerCaregiver(
+  cgCommit: Bytes<32>,
+  accessLevel: Uint<8>
+): [] {
+  assert(
+    (accessLevel as Uint<0..4>) < (4 as Uint<0..4>),
+    "Invalid access level"
+  );
+
+  caregiverAccessLevels.insert(
+    disclose(cgCommit),
+    disclose(accessLevel)
+  );
+}
+
+// ---------------------------------------------------------------------------
+// FINALIZE CAREGIVER AUDIT
+// ---------------------------------------------------------------------------
+
+export circuit finalizeCaregiverAudit(
+  cgCommit: Bytes<32>
+): [] {
+  totalCaregivers.increment(1);
+
+  const auditCommit = persistentHash<Vector<2, Bytes<32>>>(
+    [pad(32, "memorylens:audit:v1"), cgCommit]
+  );
+
+  auditCommitments.insert(disclose(auditCommit));
+}
+
+// ---------------------------------------------------------------------------
+// FINALIZE CAREGIVER METADATA
+// ---------------------------------------------------------------------------
+
+export circuit finalizeCaregiverMetadata(
+  timestamp: Uint<64>
+): [] {
+  lastUpdated = disclose(timestamp);
+}
+
+// ---------------------------------------------------------------------------
+// STORE MEMORY
+// ---------------------------------------------------------------------------
+
+export circuit storeMemory(
+  eventType: Uint<8>,
+  encryptedData: Bytes<32>,
+  timestamp: Uint<64>
+): Bytes<32> {
+  assert(encryptedData != pad(32, ""), "Empty data");
+  assert(timestamp > (0 as Uint<64>), "Invalid timestamp");
+  assert((eventType as Uint<0..4>) < (4 as Uint<0..4>), "Invalid event type");
+
+  const typeBytes   = encodeEventType(eventType);
+  const tsBytes     = persistentHash<Uint<64>>(timestamp);
+  const eventCommit = persistentHash<Vector<3, Bytes<32>>>(
+    [typeBytes, encryptedData, tsBytes]
+  );
+
+  eventCommitments.insert(disclose(eventCommit));
+  totalEvents.increment(1);
+  lastUpdated = disclose(timestamp);
+
+  return disclose(eventCommit);
+}
+
+// ---------------------------------------------------------------------------
+// REVOKE ACCESS
+// ---------------------------------------------------------------------------
+
+export circuit revokeAccess(
+  cgCommit: Bytes<32>,
+  timestamp: Uint<64>
+): Boolean {
+  assert(
+    caregiverAccessLevels.member(disclose(cgCommit)),
+    "Caregiver not found"
+  );
+
+  caregiverAccessLevels.insert(
+    disclose(cgCommit),
+    disclose(255 as Uint<8>)
+  );
+
+  const auditCommit = persistentHash<Vector<2, Bytes<32>>>(
+    [pad(32, "memorylens:revoke:v1"), cgCommit]
+  );
+  auditCommitments.insert(disclose(auditCommit));
+
+  lastUpdated = disclose(timestamp);
+
+  return disclose(true);
+}
+
+// ---------------------------------------------------------------------------
+// VERIFY ACCESS
+// ---------------------------------------------------------------------------
+
+export circuit verifyAccess(
+  cgCommit: Bytes<32>
+): Uint<8> {
+  assert(
+    caregiverAccessLevels.member(disclose(cgCommit)),
+    "Not authorized"
+  );
+
+  const level = caregiverAccessLevels.lookup(disclose(cgCommit));
+  assert(level != (255 as Uint<8>), "Revoked");
+
+  const auditCommit = persistentHash<Vector<2, Bytes<32>>>(
+    [pad(32, "memorylens:verify:v1"), cgCommit]
+  );
+  auditCommitments.insert(disclose(auditCommit));
+
+  return disclose(level);
+}
+
+// ---------------------------------------------------------------------------
+// LOG MEMORY ACCESS
+// ---------------------------------------------------------------------------
+
+export circuit logMemoryAccess(
+  cgCommit: Bytes<32>,
+  eventCommit: Bytes<32>,
+  timestamp: Uint<64>
+): [] {
+  assert(
+    caregiverAccessLevels.member(disclose(cgCommit)),
+    "Not authorized"
+  );
+
+  assert(
+    eventCommitments.member(disclose(eventCommit)),
+    "Event not found"
+  );
+
+  const tsBytes     = persistentHash<Uint<64>>(timestamp);
+  const auditCommit = persistentHash<Vector<3, Bytes<32>>>(
+    [cgCommit, eventCommit, tsBytes]
+  );
+
+  auditCommitments.insert(disclose(auditCommit));
+  lastUpdated = disclose(timestamp);
+}
+
+// ---------------------------------------------------------------------------
+// STATS
+// ---------------------------------------------------------------------------
+
+export circuit getStats(): [Uint<64>, Uint<64>, Uint<64>] {
+  return [
+    disclose(totalEvents as Uint<64>),
+    disclose(totalCaregivers as Uint<64>),
+    disclose(lastUpdated)
+  ];
+}
