@@ -1,38 +1,145 @@
 @import "tailwindcss";
 
-/* ─── Design tokens (light mode only) ───────────────────────────── */
-:root {
-  --text: #061723;
-  --background: #f2f9fd;
-  --primary: #155884;
-  --secondary: #e77e6e;
-  --accent: #b9ca21;
-}
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Next:wght@400;600&family=Manrope:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
-/* ─── Tailwind 4 theme registration ─────────────────────────────── */
 @theme inline {
-  --color-text: var(--text);
-  --color-background: var(--background);
-  --color-primary: var(--primary);
-  --color-secondary: var(--secondary);
-  --color-accent: var(--accent);
+  /* Colors */
+  --color-background: #fcf9f4;
+  --color-surface: #fcf9f4;
+  --color-surface-dim: #dcdad5;
+  --color-surface-bright: #fcf9f4;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f6f3ee;
+  --color-surface-container: #f0ede9;
+  --color-surface-container-high: #eae8e3;
+  --color-surface-container-highest: #e5e2dd;
+  --color-surface-variant: #e5e2dd;
+  --color-on-surface: #1c1c19;
+  --color-on-surface-variant: #48473e;
+  --color-inverse-surface: #31302d;
+  --color-inverse-on-surface: #f3f0eb;
+  --color-outline: #79776d;
+  --color-outline-variant: #c9c7ba;
+  --color-primary: #42432a;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #5a5a40;
+  --color-on-primary-container: #d3d1b0;
+  --color-primary-fixed: #e6e4c3;
+  --color-primary-fixed-dim: #c9c8a8;
+  --color-inverse-primary: #c9c8a8;
+  --color-secondary: #831ada;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #9e41f5;
+  --color-on-secondary-container: #fffbff;
+  --color-secondary-fixed: #f0dbff;
+  --color-secondary-fixed-dim: #ddb8ff;
+  --color-on-secondary-fixed: #2c0051;
+  --color-on-secondary-fixed-variant: #6800b4;
+  --color-tertiary: #40423e;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #575955;
+  --color-on-tertiary-container: #cfd0cb;
+  --color-error: #ba1a1a;
+  --color-on-error: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-surface-tint: #606045;
+  --color-on-background: #1c1c19;
 
-  /* Semantic surface tokens */
-  --color-surface: color-mix(in srgb, var(--background) 85%, var(--primary) 15%);
-  --color-border: color-mix(in srgb, var(--text) 15%, transparent);
-  --color-muted: color-mix(in srgb, var(--text) 50%, transparent);
+  /* Typography */
+  --font-display-lg: "Manrope", sans-serif;
+  --font-headline-lg: "Manrope", sans-serif;
+  --font-headline-md: "Manrope", sans-serif;
+  --font-headline-lg-mobile: "Manrope", sans-serif;
+  --font-body-lg: "Atkinson Hyperlegible Next", sans-serif;
+  --font-body-md: "Atkinson Hyperlegible Next", sans-serif;
+  --font-body-lg-mobile: "Atkinson Hyperlegible Next", sans-serif;
+  --font-label-lg: "Atkinson Hyperlegible Next", sans-serif;
 
-  /* Midnight / blockchain purple — fixed */
-  --color-midnight: #9333ea;
-  --color-midnight-light: #f3e8ff;
-  --color-midnight-dark: #6b21a8;
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 56px;
+  --text-display-lg--font-weight: 800;
+  --text-display-lg--letter-spacing: -0.02em;
+
+  --text-headline-lg: 32px;
+  --text-headline-lg--line-height: 40px;
+  --text-headline-lg--font-weight: 700;
+
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 32px;
+  --text-headline-md--font-weight: 600;
+
+  --text-headline-lg-mobile: 28px;
+  --text-headline-lg-mobile--line-height: 36px;
+  --text-headline-lg-mobile--font-weight: 700;
+
+  --text-body-lg: 20px;
+  --text-body-lg--line-height: 30px;
+  --text-body-lg--font-weight: 400;
+
+  --text-body-md: 18px;
+  --text-body-md--line-height: 28px;
+  --text-body-md--font-weight: 400;
+
+  --text-body-lg-mobile: 18px;
+  --text-body-lg-mobile--line-height: 28px;
+  --text-body-lg-mobile--font-weight: 400;
+
+  --text-label-lg: 18px;
+  --text-label-lg--line-height: 24px;
+  --text-label-lg--font-weight: 600;
+  --text-label-lg--letter-spacing: 0.01em;
+
+  /* Spacing */
+  --spacing-unit: 8px;
+  --spacing-gutter: 16px;
+  --spacing-container-margin: 24px;
+  --spacing-touch-target-min: 48px;
+  --spacing-stack-gap: 24px;
+
+  /* Border Radius */
+  --radius: 4px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
 }
 
-/* ─── Base styles ────────────────────────────────────────────────── */
+.midnight-glow {
+  box-shadow: 0 0 20px 2px rgba(131, 26, 218, 0.15);
+}
+
+.privacy-glow {
+  box-shadow: 0 0 20px 2px rgba(131, 26, 218, 0.15);
+  border-top: 4px solid #831ada;
+}
+
+.shadow-tactile {
+  box-shadow: 0 20px 40px -10px rgba(66, 67, 42, 0.12);
+}
+
+.shadow-soft {
+  box-shadow: 0 10px 40px -10px rgba(66, 67, 42, 0.15);
+}
+
+.gradient-midnight {
+  background: linear-gradient(135deg, #2c0051 0%, #831ada 100%);
+}
+
+.chat-bubble-shadow {
+  box-shadow: 0 10px 20px rgba(66, 67, 42, 0.05);
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
 body {
-  background-color: var(--background);
-  color: var(--text);
-  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background-color: #fcf9f4;
+  color: #1c1c19;
+  font-family: "Atkinson Hyperlegible Next", sans-serif;
   -webkit-font-smoothing: antialiased;
   color-scheme: light;
 }

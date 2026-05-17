@@ -1,184 +1,196 @@
 import { useState } from 'react';
-import { Shield, Zap, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
-import { Button } from '../components/ui/button';
+import { TopAppBar } from '../components/TopAppBar';
+import BottomNav from '../components/BottomNav';
 import { MidnightLoader } from '../components/MidnightLoader';
-import { TxSuccess } from '../components/TxSuccess';
+import { Icon } from '../components/ui/Icon';
 import { mockStoreMemory } from '../lib/mockMidnight';
-import { cn } from '../lib/utils';
 
-type StorageMode = 'supabase' | 'midnight';
-
-interface CompareRow {
-    label: string;
-    supabase: { value: string; good: boolean | null };
-    midnight: { value: string; good: boolean | null };
-}
-
-const rows: CompareRow[] = [
-    {
-        label: 'Storage Speed',
-        supabase: { value: '< 100ms', good: true },
-        midnight: { value: '2–5 seconds (ZK proof)', good: null },
-    },
-    {
-        label: 'Data Encryption',
-        supabase: { value: 'In transit only', good: false },
-        midnight: { value: 'End-to-end encrypted', good: true },
-    },
-    {
-        label: 'Who can see data',
-        supabase: { value: 'Supabase admins + you', good: false },
-        midnight: { value: 'Only you + authorized caregivers', good: true },
-    },
-    {
-        label: 'Selective Disclosure',
-        supabase: { value: 'Not supported', good: false },
-        midnight: { value: 'Per-caregiver, per-data-type', good: true },
-    },
-    {
-        label: 'Audit Trail',
-        supabase: { value: 'Server logs (mutable)', good: false },
-        midnight: { value: 'Immutable on-chain', good: true },
-    },
-    {
-        label: 'HIPAA Compliance',
-        supabase: { value: 'Requires extra config', good: null },
-        midnight: { value: 'Privacy-by-design', good: true },
-    },
-    {
-        label: 'Data Ownership',
-        supabase: { value: 'Centralized server', good: false },
-        midnight: { value: 'Patient-controlled', good: true },
-    },
+// ── Supabase feature rows ──────────────────────────────────────────────────
+const SUPABASE_FEATURES: { label: string; negative: boolean }[] = [
+    { label: 'Operator Visibility into Raw Data', negative: true },
+    { label: 'Centralized Risk Vector', negative: true },
+    { label: 'High Speed Transactional I/O', negative: false },
 ];
 
-function StatusIcon({ good }: { good: boolean | null }) {
-    if (good === true) return <CheckCircle className="w-4 h-4 text-green-500 shrink-0" />;
-    if (good === false) return <XCircle className="w-4 h-4 text-red-400 shrink-0" />;
-    return <AlertCircle className="w-4 h-4 text-yellow-400 shrink-0" />;
-}
+// ── Midnight feature rows ──────────────────────────────────────────────────
+const MIDNIGHT_FEATURES: { label: string }[] = [
+    { label: 'Zero-Knowledge Data Shielding' },
+    { label: 'Decentralized Trust Protocol' },
+    { label: 'Complete Privacy Sovereignty' },
+];
 
 export default function ComparisonDemo() {
-    const [mode, setMode] = useState<StorageMode>('supabase');
-    const [loading, setLoading] = useState(false);
+    const [zkStep, setZkStep] = useState<0 | 1 | 2 | 3>(1);
+    const [isRunning, setIsRunning] = useState(false);
     const [txHash, setTxHash] = useState<string | null>(null);
-    const [supabaseDone, setSupabaseDone] = useState(false);
 
-    const handleStore = async () => {
+    // Preserve existing demo logic — simulate ZK proof steps then store
+    const handleStoreSampleMemory = async () => {
+        if (isRunning) return;
+        setIsRunning(true);
         setTxHash(null);
-        setSupabaseDone(false);
-        setLoading(true);
+        setZkStep(0);
 
-        if (mode === 'supabase') {
-            await new Promise((r) => setTimeout(r, 80));
-            setSupabaseDone(true);
-        } else {
-            const hash = await mockStoreMemory({ demo: true, timestamp: Date.now() });
-            setTxHash(hash);
-        }
-        setLoading(false);
+        // Step 0 → 1: encrypting
+        await new Promise((r) => setTimeout(r, 800));
+        setZkStep(1);
+
+        // Step 1 → 2: generating proof (mockStoreMemory takes ~2.5s)
+        const hashPromise = mockStoreMemory({ demo: true, timestamp: Date.now() });
+        await new Promise((r) => setTimeout(r, 1200));
+        setZkStep(2);
+
+        // Step 2 → 3: submitting
+        const hash = await hashPromise;
+        await new Promise((r) => setTimeout(r, 600));
+        setZkStep(3);
+
+        setTxHash(hash);
+        setIsRunning(false);
     };
 
     return (
-        <div className="max-w-2xl mx-auto space-y-6 p-4 pb-24">
-            <div>
-                <h1 className="text-2xl font-bold text-gray-900">Storage Comparison</h1>
-                <p className="text-sm text-gray-500 mt-1">
-                    See the difference between Supabase and Midnight blockchain storage.
-                </p>
-            </div>
+        <>
+            {/* Sticky top bar */}
+            <TopAppBar />
 
-            {/* Mode selector */}
-            <div className="grid grid-cols-2 gap-3">
-                {(['supabase', 'midnight'] as StorageMode[]).map((m) => (
-                    <button
-                        key={m}
-                        onClick={() => { setMode(m); setTxHash(null); setSupabaseDone(false); }}
-                        className={cn(
-                            'flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all',
-                            mode === m
-                                ? m === 'midnight'
-                                    ? 'border-purple-500 bg-purple-50'
-                                    : 'border-blue-500 bg-blue-50'
-                                : 'border-gray-200 bg-white hover:border-gray-300'
-                        )}
-                    >
-                        {m === 'supabase'
-                            ? <Zap className={cn('w-6 h-6', mode === m ? 'text-blue-600' : 'text-gray-400')} />
-                            : <Shield className={cn('w-6 h-6', mode === m ? 'text-purple-600' : 'text-gray-400')} />
-                        }
-                        <span className={cn(
-                            'text-sm font-semibold',
-                            mode === m
-                                ? m === 'midnight' ? 'text-purple-700' : 'text-blue-700'
-                                : 'text-gray-500'
-                        )}>
-                            {m === 'supabase' ? '⚡ Supabase' : '🌙 Midnight'}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                            {m === 'supabase' ? 'Fast, centralized' : 'Private, on-chain'}
-                        </span>
-                    </button>
-                ))}
-            </div>
+            <main className="max-w-7xl mx-auto px-container-margin pt-10 pb-32">
 
-            {/* Live demo */}
-            <div className="bg-white rounded-xl border border-gray-200 p-4 space-y-4">
-                <h2 className="text-sm font-semibold text-gray-700">Live Demo</h2>
+                {/* ── Page heading ─────────────────────────────────────────── */}
+                <section className="mb-12 text-center">
+                    <h1 className="font-display-lg text-display-lg text-primary mb-4">
+                        Infrastructure Comparison
+                    </h1>
+                    <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto text-center">
+                        Evaluating data residency and privacy sovereignty for digital memories.
+                        MemoryLens prioritises ZK-proof verification over traditional cloud storage.
+                    </p>
+                </section>
 
-                {loading && mode === 'midnight' && <MidnightLoader />}
+                {/* ── Comparison grid ──────────────────────────────────────── */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-stack-gap mb-12">
 
-                {!loading && txHash && (
-                    <TxSuccess txHash={txHash} onClose={() => setTxHash(null)} />
-                )}
+                    {/* Supabase card — col-span-5 */}
+                    <div className="lg:col-span-5 bg-surface-container-lowest rounded-xl p-8 shadow-[0_20px_40px_rgba(66,67,42,0.05)] border-t-4 border-outline-variant">
+                        {/* Card header */}
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="w-12 h-12 bg-surface-container rounded-lg flex items-center justify-center">
+                                <Icon name="database" className="text-outline" size={24} />
+                            </div>
+                            <div>
+                                <h2 className="font-headline-md text-headline-md text-on-surface">Supabase</h2>
+                                <p className="font-label-lg text-label-lg text-outline">Traditional Cloud Architecture</p>
+                            </div>
+                        </div>
 
-                {!loading && supabaseDone && (
-                    <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                        <CheckCircle className="w-4 h-4 text-blue-600" />
-                        <p className="text-sm text-blue-800 font-medium">Stored in Supabase in &lt;100ms ⚡</p>
+                        {/* Feature rows */}
+                        <div className="space-y-1">
+                            {SUPABASE_FEATURES.map((feature) => (
+                                <div
+                                    key={feature.label}
+                                    className="flex items-center gap-4 py-3 border-b border-surface-container last:border-0"
+                                >
+                                    <Icon
+                                        name={feature.negative ? 'close' : 'check'}
+                                        className={feature.negative ? 'text-error' : 'text-primary'}
+                                        size={24}
+                                    />
+                                    <span className="font-body-md text-body-md text-on-surface">{feature.label}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                )}
 
-                {!loading && (
-                    <Button
-                        onClick={handleStore}
-                        className={cn(
-                            'w-full gap-2',
-                            mode === 'midnight'
-                                ? 'bg-purple-600 hover:bg-purple-700 text-white'
-                                : 'bg-blue-600 hover:bg-blue-700 text-white'
-                        )}
-                    >
-                        {mode === 'midnight' ? <Shield className="w-4 h-4" /> : <Zap className="w-4 h-4" />}
-                        Store Sample Memory via {mode === 'midnight' ? 'Midnight' : 'Supabase'}
-                    </Button>
-                )}
-            </div>
+                    {/* VS divider — col-span-2 */}
+                    <div className="lg:col-span-2 flex flex-col items-center justify-center py-4">
+                        <div className="h-full w-px bg-outline-variant hidden lg:block mb-4" />
+                        <div className="bg-primary text-on-primary font-headline-md text-headline-md w-14 h-14 rounded-full flex items-center justify-center shadow-lg">
+                            VS
+                        </div>
+                        <div className="h-full w-px bg-outline-variant hidden lg:block mt-4" />
+                    </div>
 
-            {/* Comparison table */}
-            <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
-                <div className="grid grid-cols-3 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                    <div className="p-3">Feature</div>
-                    <div className="p-3 text-blue-600">⚡ Supabase</div>
-                    <div className="p-3 text-purple-600">🌙 Midnight</div>
+                    {/* Midnight card — col-span-5 */}
+                    <div className="lg:col-span-5 bg-surface-container-lowest rounded-xl p-8 shadow-[0_20px_40px_rgba(131,26,218,0.08)] border-t-4 border-secondary">
+                        {/* Card header */}
+                        <div className="flex items-center gap-4 mb-6">
+                            <div className="w-12 h-12 bg-secondary-fixed rounded-lg flex items-center justify-center">
+                                <Icon name="security" filled className="text-secondary" size={24} />
+                            </div>
+                            <div>
+                                <h2 className="font-headline-md text-headline-md text-secondary">Midnight</h2>
+                                <p className="font-label-lg text-label-lg text-on-secondary-fixed-variant">Privacy-First Blockchain</p>
+                            </div>
+                        </div>
+
+                        {/* Feature rows */}
+                        <div className="space-y-1">
+                            {MIDNIGHT_FEATURES.map((feature) => (
+                                <div
+                                    key={feature.label}
+                                    className="flex items-center gap-4 py-3 border-b border-surface-container last:border-0"
+                                >
+                                    <Icon name="check" className="text-secondary" size={24} />
+                                    <span className="font-body-md text-body-md text-on-surface">{feature.label}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
-                {rows.map((row, i) => (
-                    <div
-                        key={row.label}
-                        className={cn('grid grid-cols-3 border-b border-gray-100 last:border-0', i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50')}
-                    >
-                        <div className="p-3 text-xs font-medium text-gray-700">{row.label}</div>
-                        <div className="p-3 flex items-start gap-1.5">
-                            <StatusIcon good={row.supabase.good} />
-                            <span className="text-xs text-gray-600">{row.supabase.value}</span>
-                        </div>
-                        <div className="p-3 flex items-start gap-1.5">
-                            <StatusIcon good={row.midnight.good} />
-                            <span className="text-xs text-gray-600">{row.midnight.value}</span>
-                        </div>
+
+                {/* ── Dark action card ─────────────────────────────────────── */}
+                <div className="bg-inverse-surface text-white rounded-xl p-10 overflow-hidden relative">
+                    {/* Decorative shield — background */}
+                    <div className="absolute top-0 right-0 p-8 pointer-events-none select-none">
+                        <Icon
+                            name="shield_with_heart"
+                            filled
+                            size={120}
+                            className="text-white opacity-10"
+                        />
                     </div>
-                ))}
-            </div>
-        </div>
+
+                    <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
+                        {/* Left: heading + description + CTA */}
+                        <div>
+                            <h2 className="font-headline-lg text-headline-lg text-white mb-4">
+                                Secure Memory Archiving
+                            </h2>
+                            <p className="font-body-lg text-body-lg text-outline-variant mb-8">
+                                Test the Zero-Knowledge proof generation process. Your memory is
+                                transformed into a cryptographic proof that confirms its validity
+                                without revealing its content.
+                            </p>
+
+                            {/* Success state */}
+                            {txHash && !isRunning && (
+                                <div className="mb-6 flex items-center gap-3 bg-secondary/20 border border-secondary/30 rounded-xl px-5 py-3">
+                                    <Icon name="check_circle" filled className="text-secondary" size={20} />
+                                    <span className="font-label-lg text-label-lg text-white break-all">
+                                        Stored: {txHash.slice(0, 18)}…
+                                    </span>
+                                </div>
+                            )}
+
+                            <button
+                                onClick={handleStoreSampleMemory}
+                                disabled={isRunning}
+                                aria-label="Store Sample Memory via Midnight ZK proof"
+                                className="bg-secondary text-on-secondary-container h-[56px] px-8 rounded-xl font-label-lg text-label-lg flex items-center gap-3 active:scale-95 duration-150 transition-all hover:bg-secondary-container disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                                <Icon name="add_photo_alternate" size={20} />
+                                {isRunning ? 'Processing…' : 'Store Sample Memory'}
+                            </button>
+                        </div>
+
+                        {/* Right: MidnightLoader ZK stepper */}
+                        <MidnightLoader activeStep={zkStep} />
+                    </div>
+                </div>
+            </main>
+
+            {/* Bottom navigation */}
+            <BottomNav currentPath="/compare" />
+        </>
     );
 }

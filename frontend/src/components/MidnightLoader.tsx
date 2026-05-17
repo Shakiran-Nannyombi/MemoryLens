@@ -1,52 +1,82 @@
-import { Loader2, ShieldCheck } from 'lucide-react';
-import { cn } from '../lib/utils';
+import { Icon } from './ui/Icon';
 
 interface Props {
-    message?: string;
+    activeStep: 0 | 1 | 2 | 3;
     className?: string;
 }
 
-const steps = [
-    'Encrypting data...',
-    'Generating ZK proof...',
-    'Submitting to Midnight...',
-    'Waiting for confirmation...',
+const STEPS = [
+    'Encrypting memory data',
+    'Generating ZK proof',
+    'Submitting to Midnight',
+    'Confirmed on-chain',
 ];
 
-export function MidnightLoader({ message, className }: Props) {
+export function MidnightLoader({ activeStep, className }: Props) {
     return (
-        <div className={cn('flex flex-col items-center gap-4 py-8 px-6', className)}>
-            {/* Animated icon */}
-            <div className="relative">
-                <div className="w-14 h-14 rounded-full bg-purple-100 flex items-center justify-center">
-                    <ShieldCheck className="w-7 h-7 text-purple-600" />
-                </div>
-                <Loader2 className="w-14 h-14 text-purple-400 animate-spin absolute inset-0" />
+        <div
+            className={`bg-surface/10 backdrop-blur-md rounded-xl p-8 ${className ?? ''}`}
+        >
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-6">
+                <Icon
+                    name="shield"
+                    filled
+                    size={28}
+                    className="text-secondary animate-pulse"
+                />
+                <h3 className="text-headline-md font-headline-md text-on-surface">
+                    ZK Proof Generation
+                </h3>
             </div>
 
-            <div className="text-center space-y-1">
-                <p className="text-sm font-semibold text-purple-800">
-                    {message ?? 'Storing on Midnight blockchain'}
-                </p>
-                <p className="text-xs text-gray-500">This takes 2–5 seconds</p>
-            </div>
+            {/* Steps */}
+            <div className="space-y-6">
+                {STEPS.map((label, index) => {
+                    const isDone = index < activeStep;
+                    const isActive = index === activeStep;
+                    const isPending = index > activeStep;
 
-            {/* Step indicators */}
-            <div className="w-full max-w-xs space-y-2">
-                {steps.map((step, i) => (
-                    <div key={step} className="flex items-center gap-2">
-                        <div className={cn(
-                            'w-1.5 h-1.5 rounded-full shrink-0',
-                            i === 1 ? 'bg-purple-600 animate-pulse' : i < 1 ? 'bg-purple-300' : 'bg-gray-200'
-                        )} />
-                        <span className={cn(
-                            'text-xs',
-                            i === 1 ? 'text-purple-700 font-medium' : i < 1 ? 'text-purple-400' : 'text-gray-300'
-                        )}>
-                            {step}
-                        </span>
-                    </div>
-                ))}
+                    return (
+                        <div
+                            key={label}
+                            className={`flex items-center gap-4 ${isPending ? 'opacity-50' : ''}`}
+                        >
+                            {/* Step indicator */}
+                            {isDone && (
+                                <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
+                                    <Icon name="check" filled size={18} className="text-on-secondary" />
+                                </div>
+                            )}
+
+                            {isActive && (
+                                <div className="w-8 h-8 rounded-full border-2 border-secondary flex items-center justify-center shrink-0">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-secondary animate-bounce" />
+                                </div>
+                            )}
+
+                            {isPending && (
+                                <div className="w-8 h-8 rounded-full border-2 border-outline-variant flex items-center justify-center shrink-0">
+                                    <span className="text-xs font-semibold text-on-surface-variant">
+                                        {index + 1}
+                                    </span>
+                                </div>
+                            )}
+
+                            {/* Step label */}
+                            <span
+                                className={`text-body-md font-body-md ${isActive
+                                        ? 'font-bold text-on-surface'
+                                        : isDone
+                                            ? 'text-on-surface'
+                                            : 'text-on-surface-variant'
+                                    }`}
+                            >
+                                {label}
+                            </span>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
