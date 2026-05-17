@@ -4,7 +4,7 @@
  * This file imports from the Compact compiler output in `managed/PatientMemory/`.
  * It will NOT resolve until you run:
  *
- *   cd src/midnight/contracts
+ *   cd frontend/src/midnight/contracts
  *   compact compile PatientMemory.compact managed/PatientMemory
  *
  * After compilation, the managed/ directory contains:
@@ -12,14 +12,12 @@
  *   managed/PatientMemory/keys/               ← Prover/verifier keys
  *   managed/PatientMemory/zkir/               ← ZK intermediate representation
  *
- * Usage (Person 3 integration layer):
+ * Usage (integration layer):
  *   import { CompiledPatientMemoryContract, ledger, zkConfigPath } from
- *     '../contracts/index.js';
+ *     './midnight/contracts/index.js';
  */
 
 import { CompiledContract } from '@midnight-ntwrk/compact-runtime';
-import { fileURLToPath } from 'node:url';
-import path from 'node:path';
 
 export {
   Contract,
@@ -32,17 +30,22 @@ export {
 
 import { Contract } from './managed/PatientMemory/contract/index.js';
 
-const currentDir = path.dirname(fileURLToPath(import.meta.url));
-
-/** Absolute path to the managed/ output directory (used by NodeZkConfigProvider). */
-export const zkConfigPath = path.resolve(currentDir, 'managed', 'PatientMemory');
+/**
+ * Relative path to the managed/ output directory.
+ * In a browser environment, this is used as a reference path for loading
+ * compiled assets. The actual loading mechanism depends on the runtime provider.
+ */
+export const zkConfigPath = './managed/PatientMemory';
 
 /**
  * Compiled contract instance ready for deployment and circuit calls.
  *
  * - `withVacantWitnesses` means witnesses are provided at call time via the
  *   providers object (see PatientMemoryWitnesses in types/contract.ts).
- * - `withCompiledFileAssets` loads the prover/verifier keys from disk.
+ * - `withCompiledFileAssets` loads the prover/verifier keys from the managed directory.
+ *
+ * Note: In a browser environment, you may need to use a different asset loading
+ * strategy depending on your build tool and Midnight SDK version.
  */
 export const CompiledPatientMemoryContract = CompiledContract.make(
   'PatientMemoryContract',

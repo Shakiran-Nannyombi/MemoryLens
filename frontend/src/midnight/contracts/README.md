@@ -80,7 +80,7 @@ compact --version
 ### 2. Compile the Contract
 
 ```bash
-cd src/midnight/contracts
+cd frontend/src/midnight/contracts
 compact compile PatientMemory.compact managed/PatientMemory
 ```
 
@@ -124,7 +124,7 @@ compact deploy --network testnet managed/PatientMemory/PatientMemory.wasm
 
 Save the contract address and share it with Person 3:
 ```bash
-echo "VITE_MIDNIGHT_CONTRACT_ADDRESS=<address>" >> ../../../.env.local
+echo "VITE_MIDNIGHT_CONTRACT_ADDRESS=<address>" >> ../../../../.env.local
 ```
 
 ---
@@ -137,7 +137,7 @@ docker compose up -d --wait
 
 # Run contract tests
 NODE_OPTIONS='--experimental-vm-modules' npx vitest run \
-  --config src/midnight/contracts/vitest.config.ts
+  --config frontend/src/midnight/contracts/vitest.config.ts
 ```
 
 ---
@@ -145,7 +145,7 @@ NODE_OPTIONS='--experimental-vm-modules' npx vitest run \
 ## File Structure
 
 ```
-src/midnight/contracts/
+frontend/src/midnight/contracts/
 ├── PatientMemory.compact       ← The contract (edit this)
 ├── PatientMemory.abi.json      ← ABI (regenerate with compact export-abi)
 ├── PatientMemory.test.ts       ← Integration tests
@@ -159,7 +159,7 @@ src/midnight/contracts/
         ├── keys/               ← Prover/verifier keys
         └── zkir/               ← ZK intermediate representation
 
-src/midnight/types/
+frontend/src/midnight/types/
 └── contract.ts                 ← Hand-written TypeScript types (share with Person 3)
 ```
 
@@ -169,12 +169,12 @@ src/midnight/types/
 
 **→ Person 3 (Backend/Integration):**
 - Contract address (after deployment)
-- `src/midnight/types/contract.ts` — type definitions
-- `src/midnight/contracts/PatientMemory.abi.json` — ABI
-- `src/midnight/contracts/index.ts` — compiled contract barrel file
+- `frontend/src/midnight/types/contract.ts` — type definitions
+- `frontend/src/midnight/contracts/PatientMemory.abi.json` — ABI
+- `frontend/src/midnight/contracts/index.ts` — compiled contract barrel file
 
 **→ Person 1 (Frontend):**
-- `src/midnight/types/contract.ts` — enums and labels
+- `frontend/src/midnight/types/contract.ts` — enums and labels
 - Contract address for `.env.local`
 
 ---

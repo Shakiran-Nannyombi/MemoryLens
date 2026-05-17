@@ -303,7 +303,7 @@ npm run build
 
 ### Deploy Smart Contract
 ```bash
-cd src/midnight/contracts
+cd frontend/src/midnight/contracts
 compact compile PatientMemory.compact
 compact deploy --network mainnet PatientMemory.wasm
 ```

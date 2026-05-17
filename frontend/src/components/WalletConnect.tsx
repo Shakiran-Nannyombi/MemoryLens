@@ -1,6 +1,5 @@
-import { useState } from 'react';
 import { useStore } from '../store/useStore';
-import { mockConnectWallet, mockDisconnectWallet } from '../lib/mockMidnight';
+import { detectWallet } from '../midnight/lib/wallet';
 import { cn } from '../lib/utils';
 import { Icon } from './ui/Icon';
 
@@ -15,38 +14,29 @@ function truncateAddress(addr: string): string {
 export function WalletConnect({ className }: Props) {
     const walletConnected = useStore((s) => s.walletConnected);
     const walletAddress = useStore((s) => s.walletAddress);
-    const setWalletConnected = useStore((s) => s.setWalletConnected);
-    const people = useStore((s) => s.people);
-    const objects = useStore((s) => s.objects);
+    const walletError = useStore((s) => s.walletError);
+    const isConnectingWallet = useStore((s) => s.isConnectingWallet);
+    const contractStats = useStore((s) => s.contractStats);
+    const connectWallet = useStore((s) => s.connectWallet);
+    const disconnectWallet = useStore((s) => s.disconnectWallet);
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-
-    const encryptedMemoriesCount = objects.length;
-    const caregiversCount = people.length;
+    const walletInstalled = detectWallet();
+    const encryptedMemoriesCount = contractStats?.totalEvents || 0;
+    const caregiversCount = contractStats?.totalCaregivers || 0;
 
     const handleConnect = async () => {
-        setLoading(true);
-        setError(null);
         try {
-            // TODO: swap mockConnectWallet with real connectWallet() from backend/lib/wallet.ts
-            const address = await mockConnectWallet();
-            setWalletConnected(true, address);
-        } catch {
-            setError('Could not connect wallet. Is 1AM installed?');
-        } finally {
-            setLoading(false);
+            await connectWallet();
+        } catch (error: any) {
+            console.error('Failed to connect wallet:', error);
         }
     };
 
     const handleDisconnect = async () => {
-        setLoading(true);
         try {
-            // TODO: swap with real disconnectWallet()
-            await mockDisconnectWallet();
-            setWalletConnected(false);
-        } finally {
-            setLoading(false);
+            await disconnectWallet();
+        } catch (error: any) {
+            console.error('Failed to disconnect wallet:', error);
         }
     };
 
@@ -89,14 +79,14 @@ export function WalletConnect({ className }: Props) {
                 {/* Disconnect button */}
                 <button
                     onClick={handleDisconnect}
-                    disabled={loading}
+                    disabled={isConnectingWallet}
                     className="mt-4 w-full flex items-center justify-center gap-2 py-2 rounded-lg
                      text-white/70 hover:text-white hover:bg-white/10
-                     transition-colors active:scale-95 duration-150 text-sm"
+                     transition-colors active:scale-95 duration-150 text-sm disabled:opacity-50"
                     aria-label="Disconnect wallet"
                 >
                     <Icon name="logout" size={16} className="text-white/70" />
-                    {loading ? 'Disconnecting...' : 'Disconnect'}
+                    Disconnect
                 </button>
             </div>
         );
@@ -125,21 +115,30 @@ export function WalletConnect({ className }: Props) {
             {/* Connect button */}
             <button
                 onClick={handleConnect}
-                disabled={loading}
+                disabled={isConnectingWallet || !walletInstalled}
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-lg
                    bg-white/20 hover:bg-white/30 text-white font-label-lg
                    transition-colors active:scale-95 duration-150
-                   min-h-[48px]"
+                   min-h-[48px] disabled:opacity-50 disabled:cursor-not-allowed"
                 aria-label="Connect 1AM wallet"
             >
                 <Icon name="account_balance_wallet" size={18} className="text-white" />
-                {loading ? 'Connecting...' : 'Connect 1AM Wallet'}
+                {isConnectingWallet ? 'Connecting...' : 'Connect 1AM Wallet'}
             </button>
 
-            {error && (
+            {!walletInstalled && (
+                <div className="mt-3 flex items-start gap-2 p-3 bg-yellow-500/20 border border-yellow-400/30 rounded-lg">
+                    <Icon name="warning" size={16} className="text-yellow-300 shrink-0 mt-0.5" />
+                    <p className="text-sm text-yellow-200">
+                        1AM wallet not detected. Using mock mode for demo.
+                    </p>
+                </div>
+            )}
+
+            {walletError && (
                 <div className="mt-3 flex items-start gap-2 p-3 bg-red-500/20 border border-red-400/30 rounded-lg">
                     <Icon name="error" size={16} className="text-red-300 shrink-0 mt-0.5" />
-                    <p className="text-sm text-red-200">{error}</p>
+                    <p className="text-sm text-red-200">{walletError}</p>
                 </div>
             )}
         </div>

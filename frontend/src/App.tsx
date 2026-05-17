@@ -2,7 +2,6 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import CameraView from './pages/CameraView';
 import AssistantMode from './pages/AssistantMode';
 import CaregiverDashboard from './pages/CaregiverDashboard';
-import ComparisonDemo from './pages/ComparisonDemo';
 import Login from './pages/Login';
 import { useEffect } from 'react';
 import { supabase } from './lib/supabase';
@@ -28,7 +27,6 @@ export default function App() {
       <Routes>
         <Route path="/" element={<CameraView />} />
         <Route path="/assistant" element={<AssistantMode />} />
-        <Route path="/compare" element={<ComparisonDemo />} />
         <Route path="/dashboard/*" element={<CaregiverDashboard />} />
         <Route path="/login" element={<Login />} />
       </Routes>
