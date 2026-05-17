@@ -126,7 +126,7 @@ export default function CameraView() {
       if ((window as any).cocoModel) {
         const objDetections = await (window as any).cocoModel.detect(video);
         const labels = objDetections
-          .filter((d: any) => d.score > 0.6)
+          .filter((d: any) => d.score > 0.4) // Lowered threshold from 0.6 to 0.4 to detect more objects
           .map((d: any) => {
             const custom = objects.find((o) => o.coco_class === d.class);
             return custom ? custom.custom_label : d.class;

@@ -8,7 +8,6 @@ interface BottomNavProps {
 const NAV_ITEMS = [
     { path: '/', icon: 'camera_front', label: 'Lens' },
     { path: '/assistant', icon: 'contact_support', label: 'Help' },
-    { path: '/compare', icon: 'compare_arrows', label: 'Compare' },
     { path: '/login', icon: 'face', label: 'Caregiver' },
 ];
 

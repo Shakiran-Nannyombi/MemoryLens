@@ -13,10 +13,25 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  // Demo credentials
+  const DEMO_EMAIL = 'demo@memorylens.app';
+  const DEMO_PASSWORD = 'demo123';
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Check for demo credentials first
+    if (email === DEMO_EMAIL && password === DEMO_PASSWORD) {
+      // Demo login - bypass Supabase
+      console.log('Demo login successful');
+      navigate('/dashboard');
+      setLoading(false);
+      return;
+    }
+
+    // Real Supabase login
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       setError(error.message);
@@ -24,6 +39,11 @@ export default function Login() {
       navigate('/dashboard');
     }
     setLoading(false);
+  };
+
+  const handleDemoLogin = () => {
+    setEmail(DEMO_EMAIL);
+    setPassword(DEMO_PASSWORD);
   };
 
   return (
@@ -132,9 +152,20 @@ export default function Login() {
             {/* REQ-010: Divider with "Secure Login" text */}
             <div className="flex items-center gap-4 py-2">
               <div className="h-px flex-grow bg-outline-variant" />
-              <span className="font-label-lg text-label-lg text-on-surface-variant">Secure Login</span>
+              <span className="font-label-lg text-label-lg text-on-surface-variant">or</span>
               <div className="h-px flex-grow bg-outline-variant" />
             </div>
+
+            {/* Demo Login Button */}
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={handleDemoLogin}
+            >
+              <Icon name="play_circle" size={20} className="mr-2" />
+              Use Demo Login
+            </Button>
 
             {/* REQ-010: Secondary CTA — outline style */}
             <Button
@@ -146,6 +177,13 @@ export default function Login() {
               Return to Lens
             </Button>
           </form>
+
+          {/* Demo credentials info */}
+          <div className="mt-6 p-3 bg-secondary-container/20 rounded-lg border border-secondary/20">
+            <p className="font-label-sm text-label-sm text-on-surface-variant text-center">
+              <strong>Demo:</strong> demo@memorylens.app / demo123
+            </p>
+          </div>
 
           {/* REQ-010: Privacy note */}
           <div className="mt-10 flex items-center justify-center gap-3 p-4 bg-secondary/5 rounded-lg border border-secondary/10">
