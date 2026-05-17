@@ -8,15 +8,18 @@
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "contract:compile": "cd src/midnight/contracts && compact compile PatientMemory.compact managed/PatientMemory",
+    "contract:compile:fast": "cd src/midnight/contracts && compact compile --skip-zk PatientMemory.compact managed/PatientMemory",
+    "contract:abi": "cd src/midnight/contracts && compact export-abi PatientMemory.compact --output PatientMemory.abi.json",
+    "contract:types": "cd src/midnight/contracts && compact generate-types PatientMemory.compact --output ../types/",
+    "test:contract": "NODE_OPTIONS='--experimental-vm-modules' npx vitest run --config src/midnight/contracts/vitest.config.ts"
   },
   "dependencies": {
     "@google/genai": "^1.29.0",
-    "@midnight-ntwrk/compact-runtime": "^0.8.2",
-    "@midnight-ntwrk/ledger": "^0.8.2",
-    "@midnight-ntwrk/midnight-js-types": "^0.8.2",
-    "@midnight-ntwrk/wallet": "^0.8.2",
-    "@midnight-ntwrk/zswap": "^0.8.2",
+    "@midnight-ntwrk/compact-runtime": "0.16.0",
+    "@midnight-ntwrk/ledger-v8": "8.0.3",
+    "@midnight-ntwrk/midnight-js-types": "4.0.4",
     "@supabase/supabase-js": "^2.104.0",
     "@tailwindcss/vite": "^4.1.14",
     "@tensorflow-models/coco-ssd": "^2.2.3",
@@ -39,13 +42,15 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
-    "@midnight-ntwrk/compact-compiler": "^0.8.2",
+    "@midnight-ntwrk/midnight-js-compact": "4.0.4",
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
+    "@types/ws": "^8.5.9",
     "autoprefixer": "^10.4.21",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
-    "vite": "^6.2.0"
+    "vite": "^6.2.0",
+    "vitest": "^3.0.0"
   }
 }
